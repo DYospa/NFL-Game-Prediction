@@ -1,11 +1,12 @@
 import os
+import argparse
 import pandas as pd
 
-# Search the entire ML project folder
-BASE_DIR = "/Users/doronyospa/Desktop/ML"
+# Search this project folder by default, on any operating system.
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Save the merged file in the archive folder
-OUTPUT_DIR = os.path.join(BASE_DIR, "project", "archive")
+OUTPUT_DIR = os.path.join(BASE_DIR, "archive")
 OUTPUT_FILE = os.path.join(OUTPUT_DIR, "2010_2026_plays.csv")
 
 DATA_PLAYS = [
@@ -77,4 +78,13 @@ def merge_plays():
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Merge yearly NFL play CSV files.")
+    parser.add_argument("--data-dir", default=BASE_DIR,
+                        help="Folder containing YEAR_plays.csv files (searched recursively).")
+    parser.add_argument("--output-dir", default=OUTPUT_DIR,
+                        help="Folder for the merged CSV.")
+    args = parser.parse_args()
+    BASE_DIR = os.path.abspath(args.data_dir)
+    OUTPUT_DIR = os.path.abspath(args.output_dir)
+    OUTPUT_FILE = os.path.join(OUTPUT_DIR, "2010_2026_plays.csv")
     merge_plays()

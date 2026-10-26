@@ -14,7 +14,7 @@ A binary classification project that predicts the winner of NFL games from team 
 ## Data
 
 - **Source:** [Kaggle: NFL Game Scores Dataset](https://www.kaggle.com/datasets/keonim/nfl-game-scores-dataset-2017-2023)
-- **Expected file:** `nfl_games.csv` in the project folder (update `CSV_PATH` in `model.py` if it lives elsewhere).
+- **Expected file:** the bundled `2010-2026_scores.csv.zip`, or an extracted `2010-2026_scores.csv` next to `model.py`.
 - **Columns:** `Season, Week, GameStatus, GameSlot, GameDate, AwayTeam, AwayScore, HomeTeam, HomeScore`
 - **Notes:**
   - `GameDate` has no year (e.g. "August 8th"), so the year is derived from `Season`. Games in January-July belong to the following calendar year.
@@ -24,16 +24,43 @@ A binary classification project that predicts the winner of NFL games from team 
 
 ## Setup
 
-```bash
-# Python 3.13 environment used during development
-pip install pandas numpy scikit-learn shap
+```powershell
+py -3.11 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-Place the dataset CSV next to `model.py`, then run:
+Activate the environment in Command Prompt with `.venv\Scripts\activate.bat`,
+or in PowerShell with `.\.venv\Scripts\Activate.ps1`. Then use `python` for the
+commands below. Activation is optional: you can always run
+`.\.venv\Scripts\python.exe model.py` or `.\.venv\Scripts\python.exe EDA.py` directly.
+In your editor, select `.venv\Scripts\python.exe` as the project interpreter.
+
+Run from the project folder; the scores ZIP can stay compressed:
 
 ```bash
 python model.py
+python EDA.py
 ```
+
+`EDA.py` writes five PNG charts and `analysis_summary.json` into `visualizations`.
+You can also supply a CSV/ZIP path and `--output-dir` explicitly.
+SHAP is optional: install it with `python -m pip install shap` to display the
+model's feature-importance plot.
+
+On Windows, `python` and `py` can select different installations. Use the same
+interpreter for installation and execution. This device's Python 3.11 already
+has the required packages; use `py -3.11` instead of `python` if needed.
+
+`merge_plays.py` is a separate utility requiring yearly files named
+`2010_plays.csv` through `2026_plays.csv`. These are not included in the scores
+ZIP. It searches the project folder by default, or a folder you provide:
+
+```powershell
+python merge_plays.py --data-dir "D:\path\to\play-data"
+```
+
+Available years are merged into `archive/2010_2026_plays.csv`; missing years
+are reported and skipped. Without any yearly files, no output is created.
 
 ## Method
 

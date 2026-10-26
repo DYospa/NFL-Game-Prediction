@@ -1,7 +1,7 @@
 """
 NFL game prediction - starter pipeline.
 
-STEP 0: run `python nfl_pipeline.py --inspect` to see your CSV's columns,
+STEP 0: run `python model.py --inspect` to see your CSV's columns,
 then edit the COLS mapping below to match. Everything else keys off COLS.
 """
 import sys
@@ -14,6 +14,7 @@ from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.metrics import (accuracy_score, precision_score, recall_score,
                              f1_score, roc_auc_score, confusion_matrix)
 import os
+import zipfile
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CSV_PATH = os.path.join(BASE_DIR, "2010-2026_scores.csv")  # <- your downloaded Kaggle file
@@ -43,8 +44,17 @@ def parse_dates(df):
                           errors="coerce")
 
 
+def read_scores():
+    """Read the extracted CSV or the bundled ZIP, ignoring Mac metadata."""
+    if os.path.isfile(CSV_PATH):
+        return pd.read_csv(CSV_PATH)
+    with zipfile.ZipFile(CSV_PATH + ".zip") as archive:
+        with archive.open("2010-2026_scores.csv") as source:
+            return pd.read_csv(source)
+
+
 def load():
-    df = pd.read_csv(CSV_PATH)
+    df = read_scores()
     print(df["GameStatus"].value_counts())            # check the real status values
     df = df[df["GameStatus"].astype(str).str.contains("Final", case=False, na=False)]
     df = df.dropna(subset=["HomeScore", "AwayScore"])
@@ -133,7 +143,7 @@ def season_cv(model_fn, g, feats, first_val=2018, last_val=2024):
 
 def main():
     if "--inspect" in sys.argv:
-        d = pd.read_csv(CSV_PATH)
+        d = read_scores()
         print(d.shape); print(d.dtypes); print(d.head())
         print(d[COLS["season"]].value_counts().sort_index() if COLS["season"] in d else "")
         return
